@@ -1,0 +1,25 @@
+name: Documentation check
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+
+jobs:
+  check-docs:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Report unfinished sections (warning only)
+        run: |
+          echo "Unfilled placeholders:"
+          grep -rn --include="*.md" -E "<[^>]*(fill in|write here)[^>]*>" . || echo "None found in markdown files."
+          grep -rln "PLACEHOLDER" outputs || echo "No placeholder output files remain."
+
+      - name: Check required folders exist
+        run: |
+          for d in docs screenshots outputs scripts templates; do
+            test -d "$d" || { echo "Missing folder: $d"; exit 1; }
+          done
+          echo "Folder structure OK."
